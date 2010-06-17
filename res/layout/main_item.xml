@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout android:id="@+id/RelativeLayout01" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"><TextView android:text="@+id/TextView_ServerName" android:id="@+id/TextView_ServerName" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+<TextView android:layout_below="@+id/TextView_ServerName" android:layout_width="wrap_content" android:id="@+id/TextView_ServerStatus" android:layout_height="wrap_content" android:text="@+id/TextView_ServerStatus" android:maxLines="1" android:textSize="12sp" android:textStyle="italic"></TextView>
+</RelativeLayout>
