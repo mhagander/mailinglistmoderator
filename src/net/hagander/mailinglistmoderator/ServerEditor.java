@@ -10,8 +10,10 @@ package net.hagander.mailinglistmoderator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -29,7 +31,8 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
  * @author Magnus Hagander <magnus@hagander.net>
  * 
  */
-public class ServerEditor extends PreferenceActivity {
+public class ServerEditor extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+	private SharedPreferences prefs;
 
 	/* Menu constants */
 	private final int MENU_NEW_SERVER = 1;
@@ -38,10 +41,13 @@ public class ServerEditor extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
 		setPreferenceScreen(getRootPreferenceScreen());
 
 		registerForContextMenu(getListView());
 
+        prefs.registerOnSharedPreferenceChangeListener(this);
 	}
 
 	private final int MENU_COPY_SERVER = 1;
@@ -59,8 +65,6 @@ public class ServerEditor extends PreferenceActivity {
 
 		PreferenceScreen ps = (PreferenceScreen)getListView().getAdapter().getItem(menuInfo.position);
 		final String name = (String) ps.getTitle();
-
-		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		if (item.getItemId() == MENU_DELETE_SERVER) {
 			SharedPreferences.Editor editor = prefs.edit();
@@ -127,6 +131,7 @@ public class ServerEditor extends PreferenceActivity {
 		e_baseurl.getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_URI);
 		e_baseurl.setTitle("Base URL");
 		e_baseurl.setDialogTitle("Base URL");
+		e_baseurl.setSummary(prefs.getString(name+"_baseurl",""));
 		screen.addPreference(e_baseurl);
 
 		/* Create textbox for password */
@@ -168,9 +173,7 @@ public class ServerEditor extends PreferenceActivity {
 							if (name.length() < 2)
 								return;
 
-							SharedPreferences.Editor editor = PreferenceManager
-									.getDefaultSharedPreferences(
-											getBaseContext()).edit();
+							SharedPreferences.Editor editor = prefs.edit();
 							editor.putString(name + "_listname", name);
 							editor.putString(name + "_baseurl", "");
 							editor.putString(name + "_password", "");
@@ -186,5 +189,14 @@ public class ServerEditor extends PreferenceActivity {
 			return true;
 		}
 		return false;
+	}
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+
+		if (key.endsWith("_baseurl")) {
+			// This is a text field, so update the value when it has been edited
+			Preference pref = findPreference(key);
+			pref.setSummary(sharedPreferences.getString(key,""));
+		}
 	}
 }
