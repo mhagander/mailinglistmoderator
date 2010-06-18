@@ -117,12 +117,7 @@ public class ServerEditor extends PreferenceActivity {
 
 							// Return with resultCode = 2 to indicate we want
 							// the parent to re-launch this Activity
-							setResult(2);
-							finish();
-						}
-					}).setNegativeButton("Cancel",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
+							// (this doesn't really work)
 							setResult(RESULT_CANCELED);
 							finish();
 						}
