@@ -196,7 +196,9 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 		if (key.endsWith("_baseurl")) {
 			// This is a text field, so update the value when it has been edited
 			Preference pref = findPreference(key);
-			pref.setSummary(sharedPreferences.getString(key,""));
+			if (pref != null) {
+				pref.setSummary(sharedPreferences.getString(key,""));
+			}
 		}
 	}
 }
