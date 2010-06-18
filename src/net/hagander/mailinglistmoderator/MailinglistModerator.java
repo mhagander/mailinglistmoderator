@@ -19,16 +19,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
@@ -42,7 +38,6 @@ public class MailinglistModerator extends ListActivity {
 
 	/* Menu constants */
 	private final int MENU_EDIT_SERVERS = 1;
-	private final int MENU_DELETE_SERVER = 2;
 
 	/* Return codes when calling sub-actions */
 	private final int REQUEST_CODE_EDITSERVERS = 7;
@@ -80,15 +75,6 @@ public class MailinglistModerator extends ListActivity {
 				startActivity(new Intent(getApplicationContext(),
 						QueueListActivity.class));
 			}
-		});
-
-		/* Set up the press-and-hold context menu */
-		lv.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v,
-					ContextMenuInfo menuInfo) {
-				menu.add(Menu.NONE, MENU_DELETE_SERVER, 1, "Delete server");
-			}
-
 		});
 
 		/* Populate list of unmoderated messages in the background */
@@ -235,36 +221,6 @@ public class MailinglistModerator extends ListActivity {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Handle selections in the click-and-hold context menu
-	 */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		if (item.getItemId() == MENU_DELETE_SERVER) {
-			/*
-			 * FIXME: It's probably a good idea to have a confirmation dialog
-			 * here.
-			 */
-			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item
-					.getMenuInfo();
-			String name = serverAdapter.getItem(menuInfo.position).getName();
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.remove(name + "_listname");
-			editor.remove(name + "_baseurl");
-			editor.remove(name + "_password");
-			editor.commit();
-
-			/*
-			 * Delete the server from the array, and notify that things have
-			 * changed. There is no need to reload the server list again.
-			 */
-			servers.remove(serverAdapter.getItem(menuInfo.position));
-			notifyServersChanged();
-		}
-
-		return true;
 	}
 
 	/**

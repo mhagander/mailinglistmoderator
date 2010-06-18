@@ -17,9 +17,13 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.EditText;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
  * @author Magnus Hagander <magnus@hagander.net>
@@ -35,6 +39,63 @@ public class ServerEditor extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 
 		setPreferenceScreen(getRootPreferenceScreen());
+
+		registerForContextMenu(getListView());
+
+	}
+
+	private final int MENU_COPY_SERVER = 1;
+	private final int MENU_DELETE_SERVER = 2;
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		menu.add(Menu.NONE, MENU_COPY_SERVER, 1, "Copy server");
+		menu.add(Menu.NONE, MENU_DELETE_SERVER, 2, "Delete server");
+	}
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item
+		.getMenuInfo();
+
+		PreferenceScreen ps = (PreferenceScreen)getListView().getAdapter().getItem(menuInfo.position);
+		final String name = (String) ps.getTitle();
+
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+		if (item.getItemId() == MENU_DELETE_SERVER) {
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.remove(name + "_listname");
+			editor.remove(name + "_baseurl");
+			editor.remove(name + "_password");
+			editor.commit();
+
+			setResult(RESULT_CANCELED);
+			finish();
+			return true;
+		}
+		if (item.getItemId() == MENU_COPY_SERVER) {
+			final EditText edit = new EditText(this);
+			new AlertDialog.Builder(this).setTitle("Copy server").setMessage(
+			"Enter list name").setView(edit).setPositiveButton(
+			"Create", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					String newname = edit.getText().toString();
+					if (newname.length() < 2)
+						return;
+
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putString(newname + "_listname", newname);
+					editor.putString(newname + "_baseurl", prefs.getString(name + "_baseurl", ""));
+					editor.putString(newname + "_password", prefs.getString(name + "_password", ""));
+					editor.commit();
+
+					setResult(RESULT_CANCELED);
+					finish();
+				}
+			}).show();
+		}
+
+		return true;
 	}
 
 	/**
