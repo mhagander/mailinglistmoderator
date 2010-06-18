@@ -38,6 +38,7 @@ public class MailinglistModerator extends ListActivity {
 
 	/* Menu constants */
 	private final int MENU_EDIT_SERVERS = 1;
+	private final int MENU_REFRESH = 2;
 
 	/* Return codes when calling sub-actions */
 	private final int REQUEST_CODE_EDITSERVERS = 7;
@@ -200,7 +201,8 @@ public class MailinglistModerator extends ListActivity {
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_EDIT_SERVERS, 0, "Servers...");
+		menu.add(0, MENU_REFRESH, 0, "Refresh");
+		menu.add(0, MENU_EDIT_SERVERS, 1, "Servers...");
 		return true;
 	}
 
@@ -218,6 +220,11 @@ public class MailinglistModerator extends ListActivity {
 			 */
 			Intent i = new Intent(getApplicationContext(), ServerEditor.class);
 			startActivityForResult(i, REQUEST_CODE_EDITSERVERS);
+			return true;
+		case MENU_REFRESH:
+			/* Refresh the server list */
+			LoadServers();
+			populateServers();
 			return true;
 		}
 		return false;
