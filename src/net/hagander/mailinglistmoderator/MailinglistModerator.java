@@ -144,61 +144,83 @@ public class MailinglistModerator extends ListActivity {
 
 		Runnable r = new Runnable() {
 			public void run() {
+				Vector<Thread> threads = new Vector<Thread>();
+				
 				for (int i = 0; i < servers.size(); i++) {
-					ListServer s = servers.get(i);
-					try {
-						s.Populate();
-					} catch (Exception e) {
-						final String msg = String.format("%s", e);
-						runOnUiThread(new Runnable() {
-							public void run() {
-								Toast.makeText(getApplicationContext(), msg,
-										Toast.LENGTH_LONG).show();
+					final ListServer s = servers.get(i);
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							// TODO Auto-generated method stub
+							try {
+								s.Populate();
+							} catch (Exception e) {
+								final String msg = String.format("%s", e);
+								runOnUiThread(new Runnable() {
+									public void run() {
+										Toast.makeText(getApplicationContext(), msg,
+												Toast.LENGTH_LONG).show();
+									}
+								});
 							}
-						});
-						continue;
-					}
 
-					/*
-					 * Since servers are sorted by number of messages, re-sort
-					 * the list when it has updated.
-					 * 
-					 * We run this once in each loop so that servers with
-					 * messages to moderate on will "bubble up" to the top as we
-					 * run.
-					 */
-					Collections.sort(servers, new Comparator<ListServer>() {
-						public int compare(ListServer server1,
-								ListServer server2) {
-							if (!server1.isPopulated()) {
-								if (!server2.isPopulated()) {
-									// Neither server is populated, sort by name
-									return server1.getName().compareTo(server2.getName());
-								}
-								// server1 is not populated, server2 is ==> server2 is bigger
-								return 1;
-							}
-							else if (!server2.isPopulated()) {
-								// server2 is not populated, server1 is ==> server1 is bigger.
-								return -1;
-							}
-							// Both servers are populated
-							if (server2.count() == server1.count()) {
-								// Count is identical, so compare by name
-								return server1.getName().compareTo(server2.getName());
-							}
-							// Both servers have valid values, and they are not the same,
-							// so return the comparison of them.
-							return server2.count() - server1.count();
-							}
+							/*
+							 * Since servers are sorted by number of messages, re-sort
+							 * the list when it has updated.
+							 * 
+							 * We run this once in each loop so that servers with
+							 * messages to moderate on will "bubble up" to the top as we
+							 * run.
+							 */
+							sortServers();
+						}
 					});
+					threads.add(t);
+					t.start();
+				}
 
-					notifyServersChanged();
+				/*
+				 * Now wait until all threads are done, but join()ing on them
+				 */
+				for (int i = 0; i < threads.size(); i++) {
+					try {
+						threads.get(i).join();
+					} catch (InterruptedException e) {
+					}
 				}
 			}
 		};
 		Thread t = new Thread(r, "ServerPopulatingThread");
 		t.start();
+	}
+
+	private void sortServers() {
+		Collections.sort(servers, new Comparator<ListServer>() {
+			public int compare(ListServer server1,
+					ListServer server2) {
+				if (!server1.isPopulated()) {
+					if (!server2.isPopulated()) {
+						// Neither server is populated, sort by name
+						return server1.getName().compareTo(server2.getName());
+					}
+					// server1 is not populated, server2 is ==> server2 is bigger
+					return 1;
+				}
+				else if (!server2.isPopulated()) {
+					// server2 is not populated, server1 is ==> server1 is bigger.
+					return -1;
+				}
+				// Both servers are populated
+				if (server2.count() == server1.count()) {
+					// Count is identical, so compare by name
+					return server1.getName().compareTo(server2.getName());
+				}
+				// Both servers have valid values, and they are not the same,
+				// so return the comparison of them.
+				return server2.count() - server1.count();
+				}
+		});
+
+		notifyServersChanged();
 	}
 
 	/**
