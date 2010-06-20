@@ -170,22 +170,27 @@ public class MailinglistModerator extends ListActivity {
 					Collections.sort(servers, new Comparator<ListServer>() {
 						public int compare(ListServer server1,
 								ListServer server2) {
-							if (server1.count() > 0 && server2.count() > 0)
-								// Both servers have items on them, so sort by
-								// name
-								return server1.getName().compareTo(
-										server2.getName());
-							if (server1.count() == 0 && server2.count() == 0)
-								// Neither server has any items, sort by name
-								return server1.getName().compareTo(
-										server2.getName());
-							if (server1.count() == 0)
-								// server1 has nothing, server 2 does, so put
-								// server2 first
+							if (!server1.isPopulated()) {
+								if (!server2.isPopulated()) {
+									// Neither server is populated, sort by name
+									return server1.getName().compareTo(server2.getName());
+								}
+								// server1 is not populated, server2 is ==> server2 is bigger
 								return 1;
-							return -1;
-						}
-
+							}
+							else if (!server2.isPopulated()) {
+								// server2 is not populated, server1 is ==> server1 is bigger.
+								return -1;
+							}
+							// Both servers are populated
+							if (server2.count() == server1.count()) {
+								// Count is identical, so compare by name
+								return server1.getName().compareTo(server2.getName());
+							}
+							// Both servers have valid values, and they are not the same,
+							// so return the comparison of them.
+							return server2.count() - server1.count();
+							}
 					});
 
 					notifyServersChanged();
