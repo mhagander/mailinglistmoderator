@@ -153,6 +153,15 @@ public class QueueListActivity extends ListActivity implements
 						// Turn off progress window
 						progressDialog.dismiss();
 
+						/*
+						 * Since the count of messages may have changed, we need to
+						 * tell the parent view as well.
+						 */
+						parent.notifyServersChanged();
+
+						/*
+						 * Did we moderate all the messages?
+						 */
 						if (server.count() == 0)
 							// Drop out to main screen if there are no more
 							// messages
@@ -164,11 +173,6 @@ public class QueueListActivity extends ListActivity implements
 									messageAdapter.notifyDataSetChanged();
 								}
 							});
-							/*
-							 * Since the count of messages changed, we need to
-							 * tell the parent view as well.
-							 */
-							parent.notifyServersChanged();
 						}
 					} else {
 						// Changes failed, error message already shown, just get
