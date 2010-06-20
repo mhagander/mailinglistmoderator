@@ -29,6 +29,10 @@ public class Dummy extends ListServer {
 	protected ArrayList<MailMessage> EnumerateMessages() {
 		ArrayList<MailMessage> messages = new ArrayList<MailMessage>();
 
+		// One in 5 will cause an error
+		if (Math.random() > 0.8)
+			throw new RuntimeException("Something bad happened.");
+
 		for (int i = 0; i < Math.random() * 8 + 2; i++) {
 			messages.add(new DummyMessage());
 		}

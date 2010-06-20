@@ -34,6 +34,7 @@ public abstract class ListServer {
 	protected String password;
 
 	protected boolean populated;
+	protected boolean exceptioned;
 	protected String status;
 	protected ArrayList<MailMessage> messages;
 
@@ -53,6 +54,7 @@ public abstract class ListServer {
 		this.password = password;
 
 		this.populated = false;
+		this.exceptioned = false;
 		this.messages = new ArrayList<MailMessage>();
 	}
 
@@ -120,7 +122,9 @@ public abstract class ListServer {
 	 * @return a string representing the current status for this list
 	 */
 	public String getStatus() {
-		if (populated)
+		if (exceptioned)
+			return String.format("Exception: %s", status);
+		else if (populated)
 			return status;
 		else
 			return "loading...";
@@ -152,7 +156,14 @@ public abstract class ListServer {
 	 */
 	public void Populate() {
 		messages.clear();
-		messages.addAll(EnumerateMessages());
+		try {
+			messages.addAll(EnumerateMessages());
+		}
+		catch (RuntimeException e) {
+			this.exceptioned = true;
+			this.status = String.format("%s", e);
+			throw e;
+		}
 
 		populated = true;
 		status = String.format("%d unmoderated messages", messages.size());
