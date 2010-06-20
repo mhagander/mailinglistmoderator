@@ -156,6 +156,7 @@ public abstract class ListServer {
 	 */
 	public void Populate() {
 		messages.clear();
+		populated = exceptioned = false;
 		try {
 			messages.addAll(EnumerateMessages());
 		}
