@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
+import net.hagander.mailinglistmoderator.backend.providers.Dummy;
 import net.hagander.mailinglistmoderator.backend.providers.Mailman;
 import net.hagander.mailinglistmoderator.backend.providers.Majordomo2;
 import net.hagander.mailinglistmoderator.backend.providers.Unconfigured;
@@ -68,6 +69,8 @@ public abstract class ListServer {
 	 * @return A ListServer instance representing this server.
 	 */
 	public static ListServer Create(String name, String rooturl, String password) {
+		if (rooturl.startsWith("dummy:"))
+			return new Dummy(name, rooturl, password);
 		if (rooturl.contains("/admindb"))
 			return new Mailman(name, rooturl, password);
 		if (rooturl.contains("mj_wwwadm"))
