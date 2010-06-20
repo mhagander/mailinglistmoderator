@@ -7,10 +7,10 @@
  */
 package net.hagander.mailinglistmoderator;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import net.hagander.mailinglistmoderator.glue.ListServerAdapter;
@@ -32,7 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * 
  */
 public class MailinglistModerator extends ListActivity {
-	public static ArrayList<ListServer> servers;
+	public static Vector<ListServer> servers;
 	private ListServerAdapter serverAdapter;
 	private SharedPreferences prefs;
 
@@ -50,7 +50,7 @@ public class MailinglistModerator extends ListActivity {
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		servers = new ArrayList<ListServer>();
+		servers = new Vector<ListServer>();
 		LoadServers();
 
 		serverAdapter = new ListServerAdapter(this, R.layout.main_item, servers);

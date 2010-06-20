@@ -7,7 +7,7 @@
  */
 package net.hagander.mailinglistmoderator.backend.providers;
 
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,11 +39,11 @@ public class Majordomo2 extends ListServer {
 					Pattern.DOTALL);
 
 	/**
-	 * Enumerate all messages on the list, and return them as an ArrayList.
+	 * Enumerate all messages on the list, and return them as an Vector.
 	 */
 	@Override
-	protected ArrayList<MailMessage> EnumerateMessages() {
-		ArrayList<MailMessage> messages = new ArrayList<MailMessage>();
+	protected Vector<MailMessage> EnumerateMessages() {
+		Vector<MailMessage> messages = new Vector<MailMessage>();
 
 		// Fetcha list of all the tokens in "consult" mode
 		String page = FetchUrl(String.format(
@@ -104,7 +104,7 @@ public class Majordomo2 extends ListServer {
 		 * Collect all the messages we're actually going to do moderation on in
 		 * it's own list.
 		 */
-		ArrayList<Majordomo2Message> msglist = new ArrayList<Majordomo2Message>();
+		Vector<Majordomo2Message> msglist = new Vector<Majordomo2Message>();
 
 		for (int i = 0; i < messages.size(); i++) {
 			Majordomo2Message msg = (Majordomo2Message) messages.get(i);

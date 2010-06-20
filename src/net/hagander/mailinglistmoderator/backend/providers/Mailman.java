@@ -7,7 +7,7 @@
  */
 package net.hagander.mailinglistmoderator.backend.providers;
 
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,11 +38,11 @@ public class Mailman extends ListServer {
 					Pattern.DOTALL);
 
 	/**
-	 * Enumerate all messages on the list, and return them as an ArrayList.
+	 * Enumerate all messages on the list, and return them as an Vector.
 	 */
 	@Override
-	protected ArrayList<MailMessage> EnumerateMessages() {
-		ArrayList<MailMessage> messages = new ArrayList<MailMessage>();
+	protected Vector<MailMessage> EnumerateMessages() {
+		Vector<MailMessage> messages = new Vector<MailMessage>();
 
 		// Fetch the details=all page which contains everything we need.
 		String page = FetchUrl(String.format("%s/%s/?details=all&adminpw=%s",

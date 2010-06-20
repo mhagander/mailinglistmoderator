@@ -9,7 +9,7 @@
  */
 package net.hagander.mailinglistmoderator.backend.providers;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import net.hagander.mailinglistmoderator.backend.MailMessage;
@@ -26,8 +26,8 @@ public class Unconfigured extends ListServer {
 	}
 
 	@Override
-	protected ArrayList<MailMessage> EnumerateMessages() {
-		return new ArrayList<MailMessage>();
+	protected Vector<MailMessage> EnumerateMessages() {
+		return new Vector<MailMessage>();
 	}
 
 	@Override

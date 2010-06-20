@@ -14,7 +14,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
+import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
 import net.hagander.mailinglistmoderator.backend.providers.Dummy;
@@ -36,7 +36,7 @@ public abstract class ListServer {
 	protected boolean populated;
 	protected boolean exceptioned;
 	protected String status;
-	protected ArrayList<MailMessage> messages;
+	protected Vector<MailMessage> messages;
 
 	/**
 	 * 
@@ -55,7 +55,7 @@ public abstract class ListServer {
 
 		this.populated = false;
 		this.exceptioned = false;
-		this.messages = new ArrayList<MailMessage>();
+		this.messages = new Vector<MailMessage>();
 	}
 
 	/**
@@ -101,7 +101,7 @@ public abstract class ListServer {
 	/*
 	 * Abstract methods, do be implemented by child classes.
 	 */
-	protected abstract ArrayList<MailMessage> EnumerateMessages();
+	protected abstract Vector<MailMessage> EnumerateMessages();
 
 	public abstract boolean doesIndividualModeration();
 
@@ -145,7 +145,7 @@ public abstract class ListServer {
 	 * 
 	 * @return a list of all messages on this list
 	 */
-	public ArrayList<MailMessage> getMessages() {
+	public Vector<MailMessage> getMessages() {
 		return messages;
 	}
 

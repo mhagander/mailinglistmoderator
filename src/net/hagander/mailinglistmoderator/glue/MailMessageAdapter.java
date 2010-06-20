@@ -7,7 +7,7 @@
  */
 package net.hagander.mailinglistmoderator.glue;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.R;
 import net.hagander.mailinglistmoderator.backend.MailMessage;
@@ -28,12 +28,12 @@ import android.widget.TextView;
  * 
  */
 public class MailMessageAdapter extends ArrayAdapter<MailMessage> {
-	private ArrayList<MailMessage> items;
+	private Vector<MailMessage> items;
 
 	private Bitmap img_green = null, img_red = null;
 
 	public MailMessageAdapter(Context context, int textViewResourceId,
-			ArrayList<MailMessage> objects) {
+			Vector<MailMessage> objects) {
 		super(context, textViewResourceId, objects);
 
 		items = objects;

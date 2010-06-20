@@ -7,7 +7,7 @@
  */
 package net.hagander.mailinglistmoderator.backend.providers;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import net.hagander.mailinglistmoderator.backend.MailMessage;
@@ -23,11 +23,11 @@ public class Dummy extends ListServer {
 	}
 
 	/**
-	 * Enumerate all messages on the list, and return them as an ArrayList.
+	 * Enumerate all messages on the list, and return them as an Vector.
 	 */
 	@Override
-	protected ArrayList<MailMessage> EnumerateMessages() {
-		ArrayList<MailMessage> messages = new ArrayList<MailMessage>();
+	protected Vector<MailMessage> EnumerateMessages() {
+		Vector<MailMessage> messages = new Vector<MailMessage>();
 
 		// One in 5 will cause an error
 		if (Math.random() > 0.8)

@@ -7,7 +7,7 @@
  */
 package net.hagander.mailinglistmoderator.glue;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.R;
 import net.hagander.mailinglistmoderator.backend.ListServer;
@@ -23,13 +23,13 @@ import android.widget.TextView;
  * 
  */
 public class ListServerAdapter extends ArrayAdapter<ListServer> {
-	private ArrayList<ListServer> items;
+	private Vector<ListServer> items;
 
 	public ListServerAdapter(Context context, int textViewResourceId,
-			ArrayList<ListServer> objects) {
-		super(context, textViewResourceId, objects);
+			Vector<ListServer> servers) {
+		super(context, textViewResourceId, servers);
 
-		items = objects;
+		items = servers;
 	}
 
 	/**
