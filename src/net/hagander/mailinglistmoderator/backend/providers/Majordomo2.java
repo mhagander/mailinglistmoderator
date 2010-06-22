@@ -63,7 +63,7 @@ public class Majordomo2 extends ListServer {
 			String subpage = FetchUrl(url);
 			if (subpage == null) {
 				/*
-				 * No tokeinfo returned here. Just ignore this message - maybe
+				 * No tokeninfo returned here. Just ignore this message - maybe
 				 * somebody moderated it while we were looking at others.
 				 */
 				continue;
