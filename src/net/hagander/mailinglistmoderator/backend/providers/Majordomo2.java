@@ -37,6 +37,10 @@ public class Majordomo2 extends ListServer {
 			.compile(
 					"<tr><td>From\\s+</td><td>([^<]+)</td>.*?<tr><td>Subject\\s+</td><td>([^<]+)</td>.*?<pre>\\s+([^<]+)\\s*</pre>",
 					Pattern.DOTALL);
+	private static final Pattern mailDetailsNoTextPattern = Pattern
+			.compile(
+			"<tr><td>From\\s+</td><td>([^<]+)</td>.*?<tr><td>Subject\\s+</td><td>([^<]+)</td>.*?<p>\\s\\[Part",
+			Pattern.DOTALL);
 
 	/**
 	 * Enumerate all messages on the list, and return them as an Vector.
@@ -68,12 +72,37 @@ public class Majordomo2 extends ListServer {
 				 */
 				continue;
 			}
+			/*
+			 * Attempt to match a mail that has a text part, which is what majordomo will show us.
+			 */
 			Matcher sm = mailDetailsPattern.matcher(subpage);
 			if (sm.find()) {
 				messages.add(new Majordomo2Message(m.group(1), sm.group(1), sm
 						.group(2), sm.group(3)));
+				continue;
 			}
-
+			/*
+			 * Attempt to match a mail that *doesn't* have a text part.
+			 */
+			sm = mailDetailsNoTextPattern.matcher(subpage);
+			if (sm.find()) {
+				/*
+				 * This will require yet another fetch in order to get the text of the first part.
+				 */
+				url = String.format(
+						"%s?passw=%s&list=%s&func=tokeninfo-part&extra=%s%%201", rooturl,
+						password, listname, m.group(1));
+				subpage = FetchUrl(url);
+				if (subpage == null) {
+					/*
+					 * Couldn't get text, just ignore it.
+					 */
+					continue;
+				}
+				messages.add(new Majordomo2Message(m.group(1), sm.group(1),
+						sm.group(2), subpage));
+				continue;
+			}
 		}
 		return messages;
 	}
