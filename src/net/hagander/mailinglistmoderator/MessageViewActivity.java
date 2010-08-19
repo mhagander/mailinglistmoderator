@@ -8,8 +8,12 @@
 package net.hagander.mailinglistmoderator;
 
 import net.hagander.mailinglistmoderator.backend.MailMessage;
+import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -44,5 +48,15 @@ public class MessageViewActivity extends Activity {
 				.getContent());
 		((TextView) findViewById(R.id.TextView_Sender)).setText(
 				String.format("From: %s\n", message.getSender()));
+		((Button) findViewById(R.id.Button_Accept)).setOnClickListener(new OnClickListener(){
+			public void onClick(View v) {
+				message.setStatus(statuslevel.Accept);
+				finish();
+			}});
+		((Button) findViewById(R.id.Button_Reject)).setOnClickListener(new OnClickListener(){
+			public void onClick(View v) {
+				message.setStatus(statuslevel.Reject);
+				finish();
+			}});
 	}
 }

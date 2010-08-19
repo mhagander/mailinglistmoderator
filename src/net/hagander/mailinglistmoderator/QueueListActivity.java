@@ -85,8 +85,8 @@ public class QueueListActivity extends ListActivity implements
 				MailMessage m = messageAdapter.getItem(position);
 
 				MessageViewActivity.setMessage(m);
-				startActivity(new Intent(getApplicationContext(),
-						MessageViewActivity.class));
+				startActivityForResult(new Intent(getApplicationContext(),
+						MessageViewActivity.class), 1);
 				/*
 				 * FIXME Intent i = new Intent();
 				 * i.setClassName("net.hagander.mailinglistmoderator",
@@ -296,5 +296,15 @@ public class QueueListActivity extends ListActivity implements
 			return true;
 		}
 		return false;
+
+	}
+
+	/**
+	 * Refresh when child activity returns
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		/* We only have one child activity now, so just notify always.. */
+		messageAdapter.notifyDataSetChanged();
 	}
 }
