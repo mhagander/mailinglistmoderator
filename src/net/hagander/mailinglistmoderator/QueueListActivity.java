@@ -137,6 +137,7 @@ public class QueueListActivity extends ListActivity implements
 				 */
 				progressDialog
 						.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				progressDialog.setMax(server.count()+1);
 			}
 			progressDialog.setTitle("Applying...");
 			progressDialog.setMessage("Sending moderation requests...");
@@ -149,6 +150,11 @@ public class QueueListActivity extends ListActivity implements
 						// Reload the moderation queue (for this server only)
 						SetStatusMessage("Reloading moderation queue...");
 						server.Populate();
+
+						/* Move up to 100%, for a microsecond or two */
+						if (server.doesIndividualModeration()) {
+							progressDialog.setProgress(progressDialog.getMax());
+						}
 
 						// Turn off progress window
 						progressDialog.dismiss();
@@ -187,10 +193,10 @@ public class QueueListActivity extends ListActivity implements
 	/*
 	 * Methods to implement ListServerStatusCallback
 	 */
-	public void SetProgressbarPercent(final int percent) {
+	public void SetProgressbarValue(final int value) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				progressDialog.setProgress(percent);
+				progressDialog.setProgress(value);
 			}
 		});
 	}

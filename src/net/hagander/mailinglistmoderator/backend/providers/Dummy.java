@@ -60,17 +60,14 @@ public class Dummy extends ListServer {
 	public boolean applyChanges(ListServerStatusCallbacks callbacks) {
 		for (int i = 0; i < messages.size(); i++) {
 			callbacks.SetStatusMessage(String.format(
-					"Moderating message %d of %d", i, messages.size()));
-			callbacks.SetProgressbarPercent(i * 100 / messages.size());
+					"Moderating message %d of %d", i+1, messages.size()));
 
 			try {
 				Thread.sleep(750);
 			} catch (InterruptedException e) {
 			}
+			callbacks.SetProgressbarValue(i+1);
 		}
-
-		// Make sure we exit with a full progressbar.
-		callbacks.SetProgressbarPercent(100);
 
 		return true;
 	}

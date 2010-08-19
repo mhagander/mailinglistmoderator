@@ -154,7 +154,6 @@ public class Majordomo2 extends ListServer {
 		for (int i = 0; i < msglist.size(); i++) {
 			callbacks.SetStatusMessage(String.format(
 					"Moderating message %d of %d", i, msglist.size()));
-			callbacks.SetProgressbarPercent(i * 100 / msglist.size());
 
 			try {
 				FetchUrl(String.format("%s?passw=%s&list=%s&func=%s&extra=%s",
@@ -164,10 +163,8 @@ public class Majordomo2 extends ListServer {
 				callbacks.ShowError(ex.toString());
 				return false;
 			}
+			callbacks.SetProgressbarValue(i+1);
 		}
-
-		// Make sure we exit with a full progressbar.
-		callbacks.SetProgressbarPercent(100);
 
 		return true;
 	}

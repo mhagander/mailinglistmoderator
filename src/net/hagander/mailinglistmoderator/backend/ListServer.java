@@ -199,7 +199,7 @@ public abstract class ListServer {
 	public interface ListServerStatusCallbacks {
 		public void SetStatusMessage(String msg);
 
-		public void SetProgressbarPercent(int percent);
+		public void SetProgressbarValue(int value);
 
 		public void ShowError(String msg);
 	}
