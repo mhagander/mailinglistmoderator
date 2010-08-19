@@ -42,5 +42,7 @@ public class MessageViewActivity extends Activity {
 		setContentView(R.layout.mailview);
 		((TextView) findViewById(R.id.TextView_Body)).setText(message
 				.getContent());
+		((TextView) findViewById(R.id.TextView_Sender)).setText(
+				String.format("From: %s\n", message.getSender()));
 	}
 }
