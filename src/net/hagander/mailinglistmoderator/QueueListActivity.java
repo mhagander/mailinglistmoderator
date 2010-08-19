@@ -137,7 +137,6 @@ public class QueueListActivity extends ListActivity implements
 				 */
 				progressDialog
 						.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				progressDialog.setMax(server.count()+1);
 			}
 			progressDialog.setTitle("Applying...");
 			progressDialog.setMessage("Sending moderation requests...");
@@ -197,6 +196,14 @@ public class QueueListActivity extends ListActivity implements
 		runOnUiThread(new Runnable() {
 			public void run() {
 				progressDialog.setProgress(value);
+			}
+		});
+	}
+
+	public void SetMessageCount(final int size) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				progressDialog.setMax(size+1);
 			}
 		});
 	}

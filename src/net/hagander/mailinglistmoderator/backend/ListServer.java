@@ -202,6 +202,8 @@ public abstract class ListServer {
 		public void SetProgressbarValue(int value);
 
 		public void ShowError(String msg);
+
+		public void SetMessageCount(int size);
 	}
 
 	/*

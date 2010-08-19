@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import net.hagander.mailinglistmoderator.backend.MailMessage;
+import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
 
 /**
  * 
@@ -58,9 +59,23 @@ public class Dummy extends ListServer {
 	 */
 	@Override
 	public boolean applyChanges(ListServerStatusCallbacks callbacks) {
+		/*
+		 * Collect all the messages we're actually going to do moderation on in
+		 * it's own list.
+		 */
+		Vector<DummyMessage> msglist = new Vector<DummyMessage>();
+
 		for (int i = 0; i < messages.size(); i++) {
+			DummyMessage msg = (DummyMessage) messages.get(i);
+			if (msg.getStatus() != statuslevel.Defer) {
+				msglist.add(msg);
+			}
+		}
+		callbacks.SetMessageCount(msglist.size());
+
+		for (int i = 0; i < msglist.size(); i++) {
 			callbacks.SetStatusMessage(String.format(
-					"Moderating message %d of %d", i+1, messages.size()));
+					"Moderating message %d of %d", i+1, msglist.size()));
 
 			try {
 				Thread.sleep(750);

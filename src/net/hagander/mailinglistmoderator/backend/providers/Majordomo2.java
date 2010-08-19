@@ -148,6 +148,7 @@ public class Majordomo2 extends ListServer {
 			 */
 			return false;
 
+		callbacks.SetMessageCount(msglist.size());
 		/*
 		 * Now that we know how many, moderate each individual one.
 		 */
