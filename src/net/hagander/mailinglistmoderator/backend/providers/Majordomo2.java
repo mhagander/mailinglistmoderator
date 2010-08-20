@@ -154,7 +154,7 @@ public class Majordomo2 extends ListServer {
 		 */
 		for (int i = 0; i < msglist.size(); i++) {
 			callbacks.SetStatusMessage(String.format(
-					"Moderating message %d of %d", i, msglist.size()));
+					"Moderating message %d of %d", i+1, msglist.size()));
 
 			try {
 				FetchUrl(String.format("%s?passw=%s&list=%s&func=%s&extra=%s",
