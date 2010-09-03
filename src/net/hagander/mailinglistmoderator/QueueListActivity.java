@@ -217,7 +217,6 @@ public class QueueListActivity extends ListActivity implements
 	}
 
 	public void ShowError(final String msg) {
-		final QueueListActivity parent = this;
 		runOnUiThread(new Runnable() {
 			public void run() {
 				new AlertDialog.Builder(parent).setCancelable(false)

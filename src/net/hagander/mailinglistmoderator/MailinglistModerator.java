@@ -58,8 +58,6 @@ public class MailinglistModerator extends ListActivity {
 
 		ListView lv = getListView();
 
-		final MailinglistModerator moderator = this;
-
 		/* Handle server clicks by launching the QueueListActivity */
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -72,7 +70,7 @@ public class MailinglistModerator extends ListActivity {
 				 * Ugly way to pass information to the QueueListActivity we're
 				 * going to start - pass it through a static method.
 				 */
-				QueueListActivity.setServerInfo(s, moderator);
+				QueueListActivity.setServerInfo(s, MailinglistModerator.this);
 				startActivity(new Intent(getApplicationContext(),
 						QueueListActivity.class));
 			}
