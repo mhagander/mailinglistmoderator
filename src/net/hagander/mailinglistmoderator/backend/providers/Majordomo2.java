@@ -31,7 +31,7 @@ public class Majordomo2 extends ListServer {
 
 	private static final Pattern enumMailPattern = Pattern
 			.compile(
-					"<td><input type=\"checkbox\" name=\"extra\"\\s+value=\"([^\"]+)\">.*?</td>\\s*<td>\\s*post",
+					"<td><input type=\"checkbox\" name=\"extra\"\\s+value=\"([^\"]+)\"><a href=\"[^\"]+\"\\s+target=\"_token\">[^<]+</a>\\s*</td>\\s*<td>\\s*post",
 					Pattern.DOTALL);
 	private static final Pattern mailDetailsPattern = Pattern
 			.compile(
