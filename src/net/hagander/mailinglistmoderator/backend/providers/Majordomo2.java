@@ -37,6 +37,10 @@ public class Majordomo2 extends ListServer {
 			.compile(
 					"<tr><td>From\\s+</td><td>([^<]+)</td>.*?<tr><td>Subject\\s+</td><td>([^<]+)</td>.*?<pre>\\s+([^<]+)\\s*</pre>",
 					Pattern.DOTALL);
+	private static final Pattern mailDetailsNoSubjectPattern = Pattern
+	.compile(
+			"<tr><td>From\\s+</td><td>([^<]+)</td>.*?<pre>\\s+([^<]+)\\s*</pre>",
+			Pattern.DOTALL);
 	private static final Pattern mailDetailsNoTextPattern = Pattern
 			.compile(
 			"<tr><td>From\\s+</td><td>([^<]+)</td>.*?<tr><td>Subject\\s+</td><td>([^<]+)</td>.*?<p>\\s\\[Part",
@@ -81,6 +85,13 @@ public class Majordomo2 extends ListServer {
 						.group(2), sm.group(3)));
 				continue;
 			}
+			sm = mailDetailsNoSubjectPattern.matcher(subpage);
+			if (sm.find()) {
+				messages.add(new Majordomo2Message(m.group(1), sm.group(1),
+						"No subject", sm.group(2)));
+				continue;
+			}
+
 			/*
 			 * Attempt to match a mail that *doesn't* have a text part.
 			 */
