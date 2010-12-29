@@ -106,7 +106,7 @@ public class MailinglistModerator extends ListActivity {
 					runOnUiThread(new Runnable() {
 						public void run() {
 							Toast.makeText(getApplicationContext(), msg,
-									Toast.LENGTH_LONG).show();
+									Toast.LENGTH_SHORT).show();
 						}
 					});
 				}
@@ -155,8 +155,9 @@ public class MailinglistModerator extends ListActivity {
 								final String msg = String.format("%s", e);
 								runOnUiThread(new Runnable() {
 									public void run() {
+										// FIXME: find better way to report errors
 										Toast.makeText(getApplicationContext(), msg,
-												Toast.LENGTH_LONG).show();
+												Toast.LENGTH_SHORT).show();
 									}
 								});
 							}
