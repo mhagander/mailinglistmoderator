@@ -45,6 +45,10 @@ public class Majordomo2 extends ListServer {
 			.compile(
 			"<tr><td>From\\s+</td><td>([^<]+)</td>.*?<tr><td>Subject\\s+</td><td>([^<]+)</td>.*?<p>\\s\\[Part",
 			Pattern.DOTALL);
+	private static final Pattern nolistPattern = Pattern
+			.compile(
+			"<pre>\\*{4} The &quot;(.*?)&quot; mailing list is not supported at",
+			Pattern.DOTALL);
 
 	/**
 	 * Enumerate all messages on the list, and return them as an Vector.
@@ -57,6 +61,22 @@ public class Majordomo2 extends ListServer {
 		String page = FetchUrl(String.format(
 				"%s?passw=%s&list=%s&func=showtokens-consult", rooturl,
 				password, listname));
+
+		/*
+		 * Check for no such list
+		 */
+		if (nolistPattern.matcher(page).find()) {
+			status = "List does not exist on server";
+			return null;
+		}
+		/*
+		 * Check for login failure
+		 */
+		if (page.contains("<pre>The password is invalid.  Some common reasons for this error are:")) {
+			status = "Authorization failed - invalid password?";
+			return null;
+		}
+
 
 		Matcher m = enumMailPattern.matcher(page);
 		while (m.find()) {
