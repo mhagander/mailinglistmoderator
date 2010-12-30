@@ -36,6 +36,10 @@ public class Mailman extends ListServer {
 			.compile(
 					"<td ALIGN=\"right\"><strong>From:</strong></td>\\s+<td>([^<]+)</td>.*?<td ALIGN=\"right\"><strong>Subject:</strong></td>\\s+<td>([^<]+)</td>.*?<td><TEXTAREA NAME=fulltext-(\\d+) ROWS=10 COLS=76 WRAP=soft READONLY>([^<]+)</TEXTAREA></td>",
 					Pattern.DOTALL);
+	private static final Pattern authorizationFailedPattern = Pattern
+			.compile(
+					"<strong><font size=\"\\+1\">Authorization\\s+failed.</font></strong>",
+					Pattern.DOTALL);
 
 	/**
 	 * Enumerate all messages on the list, and return them as an Vector.
@@ -47,6 +51,21 @@ public class Mailman extends ListServer {
 		// Fetch the details=all page which contains everything we need.
 		String page = FetchUrl(String.format("%s/%s/?details=all&adminpw=%s",
 				rooturl, listname, password));
+
+		/*
+		 * Check for no such list
+		 */
+		if (page.contains("<h2>Mailman Administrative Database Error</h2>No such list <em>")) {
+			status = "List does not exist on server";
+			return null;
+		}
+		/*
+		 * Check for login failure
+		 */
+		if (authorizationFailedPattern.matcher(page).find()) {
+			status = "Authorization failed - invalid password?";
+			return null;
+		}
 
 		/*
 		 * Attempt to locate all the messages in the queue.
