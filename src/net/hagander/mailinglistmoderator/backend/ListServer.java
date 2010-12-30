@@ -158,16 +158,23 @@ public abstract class ListServer {
 		messages.clear();
 		populated = exceptioned = false;
 		try {
-			messages.addAll(EnumerateMessages());
+			Vector<MailMessage> msglist = EnumerateMessages();
+			if (msglist != null) {
+				messages.addAll(EnumerateMessages());
+				populated = true;
+				status = String.format("%d unmoderated messages", messages.size());
+			}
+			else {
+				// Status is assumed to be set by by the routine that failed
+				populated = false;
+				exceptioned = true;
+			}
 		}
 		catch (RuntimeException e) {
 			this.exceptioned = true;
 			this.status = String.format("%s", e);
 			throw e;
 		}
-
-		populated = true;
-		status = String.format("%d unmoderated messages", messages.size());
 	}
 
 	/**
