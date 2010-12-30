@@ -7,6 +7,7 @@
  */
 package net.hagander.mailinglistmoderator;
 
+import net.hagander.mailinglistmoderator.backend.ListServer;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -73,8 +74,13 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 			editor.remove(name + "_password");
 			editor.commit();
 
-			setResult(RESULT_CANCELED);
-			finish();
+			for (ListServer s: MailinglistModerator.servers){
+				if (s.getName().equals(name)) {
+					MailinglistModerator.servers.remove(s);
+					break;
+				}
+			}
+			setPreferenceScreen(getRootPreferenceScreen());
 			return true;
 		}
 		if (item.getItemId() == MENU_COPY_SERVER) {
@@ -93,8 +99,8 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 					editor.putString(newname + "_password", prefs.getString(name + "_password", ""));
 					editor.commit();
 
-					setResult(RESULT_CANCELED);
-					finish();
+					MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, newname));
+					setPreferenceScreen(getRootPreferenceScreen());
 				}
 			}).show();
 		}
@@ -179,11 +185,8 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.putString(name + "_password", "");
 							editor.commit();
 
-							// Return with resultCode = 2 to indicate we want
-							// the parent to re-launch this Activity
-							// (this doesn't really work)
-							setResult(RESULT_CANCELED);
-							finish();
+							MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
+							setPreferenceScreen(getRootPreferenceScreen());
 						}
 					}).show();
 			return true;
