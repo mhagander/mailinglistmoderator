@@ -1,5 +1,5 @@
 /*
- * Majordomo2.java - This class holds implements mailinglist management for Majordomo2 lists.
+ * Majordomo2.java - This class implements mailinglist management for Majordomo2 lists.
  * 
  * Copyright (C) 2010 Magnus Hagander <magnus@hagander.net>
  * 

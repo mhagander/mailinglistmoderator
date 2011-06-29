@@ -1,5 +1,5 @@
 /*
- * Mailman.java - This class holds implements mailinglist management for GNU Mailman lists.
+ * Mailman.java - This class implements mailinglist management for GNU Mailman lists.
  * 
  * Copyright (C) 2010 Magnus Hagander <magnus@hagander.net>
  * 
