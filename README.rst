@@ -10,6 +10,12 @@ approve or reject them.
 
 At this point, only posts are moderated, not subscription requests.
 
+Installing
+----------
+Note! You are advised to install the program from the Android Market where
+it's available for free. There are some APKs available for download from
+the github page, but all updates are not always published there. The source
+always is, of course, just not the prebuilt APKs.
 
 Setting up a list
 -----------------
