@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import net.hagander.mailinglistmoderator.backend.MailMessage;
 import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
+import android.util.Log;
 
 /**
  * 
@@ -34,7 +35,7 @@ public class Mailman extends ListServer {
 					Pattern.DOTALL);
 	private static final Pattern messageContentPattern = Pattern
 			.compile(
-					"<td ALIGN=\"right\"><strong>From:</strong></td>\\s+<td>([^<]+)</td>.*?<td ALIGN=\"right\"><strong>Subject:</strong></td>\\s+<td>([^<]+)</td>.*?<td><TEXTAREA NAME=fulltext-(\\d+) ROWS=10 COLS=76 WRAP=soft READONLY>([^<]+)</TEXTAREA></td>",
+					"<td ALIGN=\"right\"><strong>From:</strong></td>\\s+<td>([^<]+)</td>.*?<td ALIGN=\"right\"><strong>Subject:</strong></td>\\s+<td>([^<]*)</td>.*?<td><TEXTAREA NAME=fulltext-(\\d+) ROWS=10 COLS=76 WRAP=soft READONLY>([^<]+)</TEXTAREA></td>",
 					Pattern.DOTALL);
 	private static final Pattern authorizationFailedPattern = Pattern
 			.compile(
