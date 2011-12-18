@@ -7,6 +7,18 @@
  */
 package net.hagander.mailinglistmoderator;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xmlpull.v1.XmlSerializer;
+
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -20,6 +32,7 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Xml;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +50,8 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 
 	/* Menu constants */
 	private final int MENU_NEW_SERVER = 1;
+	private final int MENU_EXPORT_SERVERS = 2;
+	private final int MENU_IMPORT_SERVERS = 3;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -160,6 +175,8 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_NEW_SERVER, 0, "New server");
+		menu.add(0, MENU_EXPORT_SERVERS, 1, "Export");
+		menu.add(0, MENU_IMPORT_SERVERS, 2, "Import");
 		return true;
 	}
 
@@ -190,9 +207,122 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 						}
 					}).show();
 			return true;
+		case MENU_EXPORT_SERVERS:
+			ExportServers();
+			return true;
+		case MENU_IMPORT_SERVERS:
+			ImportServers();
+			return true;
 		}
 		return false;
 	}
+
+	private void ExportServers() {
+		final EditText edit = new EditText(this);
+		edit.setText("mailinglists.xml");
+		new AlertDialog.Builder(this).setTitle("Export servers").setMessage(
+				"Enter filename").setView(edit).setPositiveButton(
+				"Export", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						String filename = edit.getText().toString();
+						if (filename.length() < 2)
+							return;
+
+						/* We're going to stick this in the default path always */
+						filename = "/sdcard/" + filename;
+						try {
+							FileOutputStream strm = new FileOutputStream(filename);
+							XmlSerializer xml = Xml.newSerializer();
+							xml.setOutput(strm, "utf-8");
+							xml.startDocument("utf-8", false);
+							xml.startTag(null, "mailinglists");
+							for (int i = 0; i < MailinglistModerator.servers.size(); i++) {
+								ListServer s = MailinglistModerator.servers.get(i);
+								s.writeXmlElement(xml);
+							}
+							xml.endTag(null,  "mailinglists");
+							xml.endDocument();
+							xml.flush();
+							strm.close();
+						}
+						catch (IOException ex) {
+							new AlertDialog.Builder(ServerEditor.this).setTitle("Failed to write file").setMessage(ex.getMessage()).show();
+						}
+					}
+				}).show();
+	}
+
+	private void ImportServers() {
+		final EditText edit = new EditText(this);
+		edit.setText("mailinglists.xml");
+		new AlertDialog.Builder(this).setTitle("Import servers").setMessage(
+				"Enter filename").setView(edit).setPositiveButton(
+				"Import", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						String filename = edit.getText().toString();
+						if (filename.length() < 2)
+							return;
+
+						int duplicates = 0;
+						int loaded = 0;
+
+						Document doc = null;
+						/* We're going to stick this in the default path always */
+						filename = "/sdcard/" + filename;
+						try {
+							FileInputStream strm = new FileInputStream(filename);
+							DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+							doc = builder.parse(strm);
+						}
+						catch (Exception ex) {
+							new AlertDialog.Builder(ServerEditor.this).setTitle("Failed to write file").setMessage(ex.getMessage()).show();
+						}
+
+						Element root = doc.getDocumentElement();
+						if (!root.getNodeName().equals("mailinglists")) {
+							new AlertDialog.Builder(ServerEditor.this).setTitle("Failed to parse file").setMessage(String.format("Root node is not of type mailinglists (%s)!", root.getNodeName())).show();
+							return;
+						}
+						NodeList listElements = root.getElementsByTagName("list");
+						/* Now that we knew we could parse everything, do the actual loop */
+						elementsloop:
+						for (int i = 0; i < listElements.getLength(); i++) {
+							Element node = (Element) listElements.item(i);
+							String name = node.getAttribute("name");
+							String baseurl = node.getAttribute("url");
+							String password = node.getAttribute("password");
+
+							/* Find out if this node already exists */
+							for (ListServer s : MailinglistModerator.servers) {
+								if (s.getName().equals(name)) {
+									duplicates++;
+									continue elementsloop;
+								}
+							}
+
+							/* Does not exist, so let's add it */
+							SharedPreferences.Editor editor = prefs.edit();
+							editor.putString(name + "_listname", name);
+							editor.putString(name + "_baseurl", baseurl);
+							editor.putString(name + "_password", password);
+							editor.commit();
+
+							MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
+
+							loaded++;
+						}
+
+						/* Let the user know what happened */
+						String msg = String.format("Imported %d new servers, ignored %d duplicates.", loaded, duplicates);
+						new AlertDialog.Builder(ServerEditor.this).setTitle("Import complete.").setMessage(msg).show();
+
+						if (loaded > 0) {
+							setPreferenceScreen(getRootPreferenceScreen());
+						}
+					}
+				}).show();
+	}
+
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 

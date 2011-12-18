@@ -16,6 +16,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Vector;
 
+import org.xmlpull.v1.XmlSerializer;
+
 import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
 import net.hagander.mailinglistmoderator.backend.providers.Dummy;
 import net.hagander.mailinglistmoderator.backend.providers.Mailman;
@@ -241,5 +243,13 @@ public abstract class ListServer {
 			throw new RuntimeException(String.format(
 					"Failed to fetch url %s: %s", url, e));
 		}
+	}
+
+	public void writeXmlElement(XmlSerializer xml) throws IOException {
+		xml.startTag(null, "list");
+		xml.attribute(null, "name", listname);
+		xml.attribute(null, "url", rooturl);
+		xml.attribute(null, "password", password);
+		xml.endTag(null, "list");
 	}
 }
