@@ -73,3 +73,8 @@ moderation changes.
 Depending on mailinglist manager this will be a single operation (for mailman)
 or a sequence of one operation for each message (majordomo2), and may in the
 majordomo2 case take a while if it's a lot of emails to be moderated.
+
+Common issues
+-------------
+
+* The mailinglist software to be in English - localized versions don't work.
