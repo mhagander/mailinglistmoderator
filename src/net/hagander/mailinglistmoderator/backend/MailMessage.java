@@ -25,9 +25,18 @@ public abstract class MailMessage {
 	};
 
 	public MailMessage(String sender, String subject, String content) {
-		this.sender = sender;
-		this.subject = subject;
-		this.content = content;
+		/* 
+		 * Create new strings to de-couple from large strings being returned
+		 * in regex matches. We do this here to get it in a centralized location,
+		 * even if it means we might duplicate once or twice too many.
+		 * Also, limit the length of the content to 255 bytes.
+		 */
+		this.sender = new String(sender);
+		this.subject = new String(subject);
+		if (content.length() > 255)
+			this.content = new String(content.substring(0,255));
+		else
+			this.content = new String(content);
 	}
 
 	public String getSender() {
