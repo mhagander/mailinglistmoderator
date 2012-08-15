@@ -14,6 +14,7 @@ import java.util.Vector;
 
 import net.hagander.mailinglistmoderator.backend.ListServer;
 import net.hagander.mailinglistmoderator.glue.ListServerAdapter;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -63,6 +64,15 @@ public class MailinglistModerator extends ListActivity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				ListServer s = serverAdapter.getItem(position);
+				if (s.isExceptioned()) {
+					/* Show the complete error message */
+					new AlertDialog.Builder(MailinglistModerator.this)
+					  .setTitle("Failed to load")
+					  .setMessage(String.format("This list failed to load with the following exception:\n\n%s", s.getStatus()))
+					  .setPositiveButton("Ok", null)
+					  .show();
+					return;
+				}
 				if (!s.isPopulated())
 					return;
 

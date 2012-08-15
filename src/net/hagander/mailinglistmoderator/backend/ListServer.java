@@ -143,6 +143,16 @@ public abstract class ListServer {
 	}
 
 	/**
+	 * Check if an exception has occurred when processing this list.
+	 * 
+	 * @return if the list is exceptioned.
+	 */
+	public boolean isExceptioned() {
+		// TODO Auto-generated method stub
+		return exceptioned;
+	}
+
+	/**
 	 * Get all messages in the moderation queue on the list.
 	 * 
 	 * @return a list of all messages on this list
@@ -174,7 +184,7 @@ public abstract class ListServer {
 		}
 		catch (RuntimeException e) {
 			this.exceptioned = true;
-			this.status = String.format("%s", e);
+			this.status = String.format("%s", e.getMessage());
 			throw e;
 		}
 	}
@@ -238,10 +248,10 @@ public abstract class ListServer {
 			return sw.toString();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(String.format(
-					"Failed to fetch url %s: %s", url, e));
+					"Failed to fetch url: %s (%s)", e, url));
 		} catch (IOException e) {
 			throw new RuntimeException(String.format(
-					"Failed to fetch url %s: %s", url, e));
+					"Failed to fetch url: %s (%s)", e, url));
 		}
 	}
 
