@@ -20,7 +20,7 @@ import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
  */
 public class Dummy extends ListServer {
 	public Dummy(String name, String rooturl, String password) {
-		super(name, rooturl, password);
+		super(name, rooturl, password, null);
 	}
 
 	/**

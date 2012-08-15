@@ -14,7 +14,15 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.cert.X509Certificate;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -24,6 +32,7 @@ import net.hagander.mailinglistmoderator.backend.providers.Mailman;
 import net.hagander.mailinglistmoderator.backend.providers.Majordomo2;
 import net.hagander.mailinglistmoderator.backend.providers.Unconfigured;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 /**
  * 
@@ -34,6 +43,7 @@ public abstract class ListServer {
 	protected String listname;
 	protected String rooturl;
 	protected String password;
+	protected String override_certname;
 
 	protected boolean populated;
 	protected boolean exceptioned;
@@ -50,10 +60,11 @@ public abstract class ListServer {
 	 * @param password
 	 *            Password to access the server (both read and write)
 	 */
-	public ListServer(String name, String rooturl, String password) {
+	public ListServer(String name, String rooturl, String password, String override_certname) {
 		this.listname = name;
 		this.rooturl = rooturl;
 		this.password = password;
+		this.override_certname = override_certname;
 
 		this.populated = false;
 		this.exceptioned = false;
@@ -70,15 +81,17 @@ public abstract class ListServer {
 	 *            Root URL of the server, not including the list name
 	 * @param password
 	 *            Password to access the server
+	 * @param override_certname
+	 *            SSL certificate name to accept
 	 * @return A ListServer instance representing this server.
 	 */
-	public static ListServer Create(String name, String rooturl, String password) {
+	public static ListServer Create(String name, String rooturl, String password, String override_certname) {
 		if (rooturl.startsWith("dummy:"))
 			return new Dummy(name, rooturl, password);
 		if (rooturl.contains("/admindb"))
-			return new Mailman(name, rooturl, password);
+			return new Mailman(name, rooturl, password, override_certname);
 		if (rooturl.contains("mj_wwwadm"))
-			return new Majordomo2(name, rooturl, password);
+			return new Majordomo2(name, rooturl, password, override_certname);
 		return new Unconfigured(name, rooturl, password);
 	}
 
@@ -96,8 +109,9 @@ public abstract class ListServer {
 			String name) {
 		String baseurl = pref.getString(name + "_baseurl", "");
 		String password = pref.getString(name + "_password", "");
+		String override_certname = pref.getString(name+"_overridecertname", "");
 
-		return Create(name, baseurl, password);
+		return Create(name, baseurl, password, override_certname);
 	}
 
 	/*
@@ -233,10 +247,48 @@ public abstract class ListServer {
 	 * Connect and fetch an URL, returning a string with the contents of the
 	 * URL.
 	 */
+	private Pattern DNPattern = Pattern.compile("^CN=([^,]+),", Pattern.CASE_INSENSITIVE);
 	protected String FetchUrl(String url) {
 		try {
-			URL u = new URL(url);
+			final URL u = new URL(url);
 			URLConnection c = u.openConnection();
+
+			if (u.getProtocol().equals("https")) {
+				HttpsURLConnection sslconn  = (HttpsURLConnection) c;
+				if (override_certname != null && !override_certname.equals("")) {
+					sslconn.setHostnameVerifier(new HostnameVerifier() {
+						public boolean verify(String hostname, SSLSession session) {
+							/* For each certificate, check */
+							X509Certificate cert;
+							try {
+								cert = (X509Certificate)session.getPeerCertificates()[0];
+							}
+							catch (SSLPeerUnverifiedException e) {
+								throw new RuntimeException(String.format(
+										"Failed to verify peer for url: %s (%s)", e, u.toString()));
+							}
+							Matcher m = DNPattern.matcher(cert.getSubjectDN().getName());
+							if (!m.find()) {
+								throw new RuntimeException(String.format(
+										"Could not extract hostname from '%s' for url %s", cert.getSubjectDN(), u.toString()));
+							}
+							String sslname = m.group(1);
+							if (sslname.equals(override_certname)) {
+								/* Matched the overridden certname, so allow this connection */
+								return true;
+							}
+
+							/*
+							 * Could return false here, but that won't show as
+							 * useful error message, so throw RuntimeEception
+							 * instead
+							 */
+							throw new RuntimeException(String.format(
+									"Certificate hostname '%s' does not match expected hostname '%s'", sslname, override_certname));
+						}
+					});
+				}
+			}
 			InputStreamReader isr = new InputStreamReader(c.getInputStream());
 			BufferedReader r = new BufferedReader(isr);
 			StringWriter sw = new StringWriter();
@@ -260,6 +312,8 @@ public abstract class ListServer {
 		xml.attribute(null, "name", listname);
 		xml.attribute(null, "url", rooturl);
 		xml.attribute(null, "password", password);
+		if (override_certname != null && !override_certname.equals(""))
+			xml.attribute(null, "overridecertname", override_certname);
 		xml.endTag(null, "list");
 	}
 }

@@ -21,8 +21,8 @@ import net.hagander.mailinglistmoderator.backend.MailMessage.statuslevel;
  * 
  */
 public class Majordomo2 extends ListServer {
-	public Majordomo2(String name, String rooturl, String password) {
-		super(name, rooturl, password);
+	public Majordomo2(String name, String rooturl, String password, String override_certname) {
+		super(name, rooturl, password, override_certname);
 	}
 
 	/*

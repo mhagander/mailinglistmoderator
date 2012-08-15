@@ -89,6 +89,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 			editor.remove(name + "_listname");
 			editor.remove(name + "_baseurl");
 			editor.remove(name + "_password");
+			editor.remove(name + "_overridecertname");
 			editor.commit();
 
 			for (ListServer s: MailinglistModerator.servers){
@@ -114,6 +115,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 					editor.putString(newname + "_listname", newname);
 					editor.putString(newname + "_baseurl", prefs.getString(name + "_baseurl", ""));
 					editor.putString(newname + "_password", prefs.getString(name + "_password", ""));
+					editor.putString(newname + "_overridecertname", prefs.getString(name + "_overridecertname", ""));
 					editor.commit();
 
 					MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, newname));
@@ -168,6 +170,13 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 		e_password.setDialogTitle("Password");
 		screen.addPreference(e_password);
 
+		/* Create textbox for certificate name override */
+		EditTextPreference e_certnameoverride = new EditTextPreference(this);
+		e_certnameoverride.setKey(name + "_overridecertname");
+		e_certnameoverride.getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+		e_certnameoverride.setTitle("Non-standard SSL hostname");
+		e_certnameoverride.setDialogTitle("Accept non-standard SSL certificate hostname");
+		screen.addPreference(e_certnameoverride);
 		return screen;
 	}
 
@@ -202,6 +211,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.putString(name + "_listname", name);
 							editor.putString(name + "_baseurl", "");
 							editor.putString(name + "_password", "");
+							editor.putString(name + "_overridecertname", "");
 							editor.commit();
 
 							MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
@@ -299,6 +309,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							String name = node.getAttribute("name");
 							String baseurl = node.getAttribute("url");
 							String password = node.getAttribute("password");
+							String overridecertname = node.getAttribute("overridecertname");
 
 							/* Find out if this node already exists */
 							boolean doesexist = false;
@@ -329,6 +340,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.putString(name + "_listname", name);
 							editor.putString(name + "_baseurl", baseurl);
 							editor.putString(name + "_password", password);
+							editor.putString(name + "_overridecertname", overridecertname);
 							editor.commit();
 
 							if (!doesexist)
