@@ -34,10 +34,12 @@ import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Xml;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -253,18 +255,23 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 	}
 
 	private void ImportServers() {
-		final EditText edit = new EditText(this);
+		LayoutInflater inflater = LayoutInflater.from(this);
+		View importserversview = inflater.inflate(R.layout.importserversview, null);
+		final EditText edit = (EditText)importserversview.findViewById(R.id.filename);
+		final CheckBox cboverwrite = (CheckBox)importserversview.findViewById(R.id.overwrite);
 		edit.setText("mailinglists.xml");
 		new AlertDialog.Builder(this).setTitle("Import servers").setMessage(
-				"Enter filename").setView(edit).setPositiveButton(
+				"Enter filename").setView(importserversview).setPositiveButton(
 				"Import", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						String filename = edit.getText().toString();
 						if (filename.length() < 2)
 							return;
 
+						boolean should_overwrite = cboverwrite.isChecked();
 						int duplicates = 0;
 						int loaded = 0;
+						int overwritten = 0;
 
 						Document doc = null;
 						/* We're going to stick this in the default path always */
@@ -293,14 +300,30 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							String password = node.getAttribute("password");
 
 							/* Find out if this node already exists */
+							boolean doesexist = false;
 							for (ListServer s : MailinglistModerator.servers) {
 								if (s.getName().equals(name)) {
+									doesexist = true;
+								}
+							}
+							if (doesexist) {
+								if (!should_overwrite) {
 									duplicates++;
 									continue elementsloop;
 								}
+								else {
+									overwritten++;
+								}
+							}
+							else {
+								loaded++;
 							}
 
-							/* Does not exist, so let's add it */
+							/*
+							 * If it does not exist, add it. If it does exist,
+							 * just calling putString() should overwrite the existing
+							 * entry.
+							 */
 							SharedPreferences.Editor editor = prefs.edit();
 							editor.putString(name + "_listname", name);
 							editor.putString(name + "_baseurl", baseurl);
@@ -308,12 +331,10 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.commit();
 
 							MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
-
-							loaded++;
 						}
 
 						/* Let the user know what happened */
-						String msg = String.format("Imported %d new servers, ignored %d duplicates.", loaded, duplicates);
+						String msg = String.format("Imported %d new servers, ignored %d duplicates, overwrote %d.", loaded, duplicates, overwritten);
 						new AlertDialog.Builder(ServerEditor.this).setTitle("Import complete.").setMessage(msg).show();
 
 						if (loaded > 0) {
