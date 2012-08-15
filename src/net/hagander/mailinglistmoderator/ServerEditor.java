@@ -235,6 +235,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 						try {
 							FileOutputStream strm = new FileOutputStream(filename);
 							XmlSerializer xml = Xml.newSerializer();
+							xml.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 							xml.setOutput(strm, "utf-8");
 							xml.startDocument("utf-8", false);
 							xml.startTag(null, "mailinglists");
