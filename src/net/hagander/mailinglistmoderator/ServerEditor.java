@@ -331,14 +331,15 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.putString(name + "_password", password);
 							editor.commit();
 
-							MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
+							if (!doesexist)
+								MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
 						}
 
 						/* Let the user know what happened */
 						String msg = String.format("Imported %d new servers, ignored %d duplicates, overwrote %d.", loaded, duplicates, overwritten);
 						new AlertDialog.Builder(ServerEditor.this).setTitle("Import complete.").setMessage(msg).show();
 
-						if (loaded > 0) {
+						if (loaded > 0 || overwritten > 0) {
 							setPreferenceScreen(getRootPreferenceScreen());
 						}
 					}
