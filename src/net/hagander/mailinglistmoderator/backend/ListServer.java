@@ -263,7 +263,7 @@ public abstract class ListServer {
 	protected String FetchUrl(String url) {
 		try {
 			final URL u = new URL(url);
-			URLConnection c = u.openConnection();
+			URLConnection c = u.openConnection(java.net.Proxy.NO_PROXY);
 
 			if (u.getProtocol().equals("https")) {
 				HttpsURLConnection sslconn  = (HttpsURLConnection) c;
@@ -357,6 +357,8 @@ public abstract class ListServer {
 				sw.write(line);
 				sw.write("\n");
 			}
+			r.close();
+			isr.close();
 			return sw.toString();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(String.format(
