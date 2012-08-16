@@ -368,5 +368,11 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 				pref.setSummary(sharedPreferences.getString(key,""));
 			}
 		}
+		if (key.endsWith("_overridecertname")) {
+			Preference pref = findPreference(key);
+			if (pref != null) {
+				pref.setSummary(sharedPreferences.getString(key, ""));
+			}
+		}
 	}
 }
