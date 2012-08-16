@@ -176,7 +176,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 		/* Create textbox for certificate name override */
 		EditTextPreference e_certnameoverride = new EditTextPreference(this);
 		e_certnameoverride.setKey(name + "_overridecertname");
-		e_certnameoverride.getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+		e_certnameoverride.getEditText().setInputType(InputType.TYPE_CLASS_TEXT);
 		e_certnameoverride.setTitle("Non-standard SSL hostname");
 		e_certnameoverride.setDialogTitle("Accept non-standard SSL certificate hostname");
 		e_certnameoverride.setSummary(prefs.getString(name+"_overridecertname",""));
