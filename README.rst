@@ -38,7 +38,7 @@ list. This is particularly useful if you have a "site-wide" administration
 password that will grant you access to all lists.
 
 Base URLs
----------
+~~~~~~~~~
 The *base url* should be set to the root of the list server management URL.
 It will be different depending on which list manager is used. Note that the
 base url does *not* include the name of the list.
@@ -50,6 +50,39 @@ For mailman, the base url is typically ``http://lists.domain.com/mailman/admindb
 Majordomo2
 ++++++++++
 For majordomo2, the base url is typically ``http://lists.domain.com/mj/mj_wwwadm``.
+
+Importing and exporting
+~~~~~~~~~~~~~~~~~~~~~~~
+You can import and export your list of servers to a XML file from the menu. This
+file will be placed in the `/sdcard/` folder, so you can use any program to edit
+or transfer it. Note that there is no real validation done when importing, so if
+the XML file has an invalid format or content, the program is likely to just
+crash instead of giving an error message.
+
+SSL
+~~~
+In it's default mode, Mailinglist Moderator will rely on the Android system to
+validate the certificate of the server connected to, if the URL starts with
+`https`. There are two settings to override this (per server), if you are using
+a certificate that doesn't validate properly:
+
+Non-standard SSL hostname
+    This setting is used if the certificate has a different hostname than the
+    URL, but otherwise validates fine. A typical example of this is overloading
+    hostnames, so the certificate is for `www.domain.com`, but the list server
+    is responding to `lists.domain.com`. In this case, put `www.domain.com` in
+    settings as *Non-standard SSL hostname*.
+Accept invalid certificate
+    This setting is used when the certificate on the server simply does not
+    validate. This could be because it's a self signed certificate, because the
+    CA signing it is not known, because it has expired, or any other reasons.
+    The configuration is set to the *SHA-1 fingerprint* of the certificate, and
+    any server that presents this fingerprint will be accepted. When you enter
+    this setting, the current certificate will automatically be downloaded and
+    presented, and you can press a button to copy the fingerprint to the setting,
+    once you have verified that it's correct. *Note* that you will have to
+    set the *Non-standard SSL hostname* setting as well as this one, in case the
+    name on the certificate doesn't match.
 
 Moderating
 ----------
