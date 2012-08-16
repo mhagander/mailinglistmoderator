@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 import org.xmlpull.v1.XmlSerializer;
 
 import net.hagander.mailinglistmoderator.backend.ListServer;
+import net.hagander.mailinglistmoderator.preferences.SSLCertDialogPreference;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -90,6 +91,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 			editor.remove(name + "_baseurl");
 			editor.remove(name + "_password");
 			editor.remove(name + "_overridecertname");
+			editor.remove(name + "_whitelistedcert");
 			editor.commit();
 
 			for (ListServer s: MailinglistModerator.servers){
@@ -116,6 +118,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 					editor.putString(newname + "_baseurl", prefs.getString(name + "_baseurl", ""));
 					editor.putString(newname + "_password", prefs.getString(name + "_password", ""));
 					editor.putString(newname + "_overridecertname", prefs.getString(name + "_overridecertname", ""));
+					editor.putString(newname + "_whitelistedcert", prefs.getString(name + "_whitelistedcert", ""));
 					editor.commit();
 
 					MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, newname));
@@ -176,7 +179,17 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 		e_certnameoverride.getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 		e_certnameoverride.setTitle("Non-standard SSL hostname");
 		e_certnameoverride.setDialogTitle("Accept non-standard SSL certificate hostname");
+		e_certnameoverride.setSummary(prefs.getString(name+"_overridecertname",""));
 		screen.addPreference(e_certnameoverride);
+
+		/* Create specific preference to deal with whitelisted certs */
+		SSLCertDialogPreference e_whitelistcert = new SSLCertDialogPreference(this);
+		e_whitelistcert.setKey(name + "_whitelistedcert");
+		e_whitelistcert.setTitle("Accept invalid certificate");
+		e_whitelistcert.setDialogTitle("Accept non-validating SSL certificate");
+		e_whitelistcert.setSummary(prefs.getString(name+"_whitelistedcert",""));
+		screen.addPreference(e_whitelistcert);
+
 		return screen;
 	}
 
@@ -212,6 +225,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.putString(name + "_baseurl", "");
 							editor.putString(name + "_password", "");
 							editor.putString(name + "_overridecertname", "");
+							editor.putString(name + "_whitelistedcert", "");
 							editor.commit();
 
 							MailinglistModerator.servers.add(ListServer.CreateFromPreference(prefs, name));
@@ -310,6 +324,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							String baseurl = node.getAttribute("url");
 							String password = node.getAttribute("password");
 							String overridecertname = node.getAttribute("overridecertname");
+							String whitelistedcert = node.getAttribute("whitelistedcert");
 
 							/* Find out if this node already exists */
 							boolean doesexist = false;
@@ -341,6 +356,7 @@ public class ServerEditor extends PreferenceActivity implements OnSharedPreferen
 							editor.putString(name + "_baseurl", baseurl);
 							editor.putString(name + "_password", password);
 							editor.putString(name + "_overridecertname", overridecertname);
+							editor.putString(name + "_whitelistedcert", whitelistedcert);
 							editor.commit();
 
 							if (!doesexist)

@@ -22,8 +22,8 @@ import android.util.Log;
  * 
  */
 public class Mailman extends ListServer {
-	public Mailman(String name, String rooturl, String password, String override_certname) {
-		super(name, rooturl, password, override_certname);
+	public Mailman(String name, String rooturl, String password, String override_certname, String whitelisted_cert) {
+		super(name, rooturl, password, override_certname, whitelisted_cert);
 	}
 
 	/*

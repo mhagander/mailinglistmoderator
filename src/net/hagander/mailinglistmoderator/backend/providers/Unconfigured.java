@@ -22,7 +22,7 @@ import net.hagander.mailinglistmoderator.backend.MailMessage;
 public class Unconfigured extends ListServer {
 
 	public Unconfigured(String name, String rooturl, String password) {
-		super(name, rooturl, password, null);
+		super(name, rooturl, password, null, null);
 	}
 
 	@Override

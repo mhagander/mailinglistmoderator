@@ -11,9 +11,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyManagementException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -21,8 +26,10 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.X509TrustManager;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -44,6 +51,7 @@ public abstract class ListServer {
 	protected String rooturl;
 	protected String password;
 	protected String override_certname;
+	protected String whitelisted_cert;
 
 	protected boolean populated;
 	protected boolean exceptioned;
@@ -60,11 +68,12 @@ public abstract class ListServer {
 	 * @param password
 	 *            Password to access the server (both read and write)
 	 */
-	public ListServer(String name, String rooturl, String password, String override_certname) {
+	public ListServer(String name, String rooturl, String password, String override_certname, String whitelisted_cert) {
 		this.listname = name;
 		this.rooturl = rooturl;
 		this.password = password;
 		this.override_certname = override_certname;
+		this.whitelisted_cert = whitelisted_cert;
 
 		this.populated = false;
 		this.exceptioned = false;
@@ -83,15 +92,17 @@ public abstract class ListServer {
 	 *            Password to access the server
 	 * @param override_certname
 	 *            SSL certificate name to accept
+	 * @param whitelisted_cert
+	 *            SSL certificate fingerprint to whitelist
 	 * @return A ListServer instance representing this server.
 	 */
-	public static ListServer Create(String name, String rooturl, String password, String override_certname) {
+	public static ListServer Create(String name, String rooturl, String password, String override_certname, String whitelisted_cert) {
 		if (rooturl.startsWith("dummy:"))
 			return new Dummy(name, rooturl, password);
 		if (rooturl.contains("/admindb"))
-			return new Mailman(name, rooturl, password, override_certname);
+			return new Mailman(name, rooturl, password, override_certname, whitelisted_cert);
 		if (rooturl.contains("mj_wwwadm"))
-			return new Majordomo2(name, rooturl, password, override_certname);
+			return new Majordomo2(name, rooturl, password, override_certname, whitelisted_cert);
 		return new Unconfigured(name, rooturl, password);
 	}
 
@@ -110,8 +121,9 @@ public abstract class ListServer {
 		String baseurl = pref.getString(name + "_baseurl", "");
 		String password = pref.getString(name + "_password", "");
 		String override_certname = pref.getString(name+"_overridecertname", "");
+		String whitelisted_cert = pref.getString(name+"_whitelistedcert", "");
 
-		return Create(name, baseurl, password, override_certname);
+		return Create(name, baseurl, password, override_certname, whitelisted_cert);
 	}
 
 	/*
@@ -288,6 +300,54 @@ public abstract class ListServer {
 						}
 					});
 				}
+
+				/* Let's see if we should also check the actual certificate */
+				if (whitelisted_cert != null && !whitelisted_cert.equals("")) {
+					SSLContext context;
+					try {
+						context = SSLContext.getInstance("TLS");
+					} catch (NoSuchAlgorithmException e) {
+						throw new RuntimeException("Could not find TLS context!");
+					}
+					try {
+						context.init(null,
+								new X509TrustManager[] { new X509TrustManager() {
+									public void checkClientTrusted(
+											X509Certificate[] chain, String authType)
+											throws CertificateException {
+									}
+
+									public void checkServerTrusted(
+											X509Certificate[] chain, String authType)
+											throws CertificateException {
+
+										MessageDigest md;
+										try {
+											md = MessageDigest.getInstance("SHA-1");
+										} catch (NoSuchAlgorithmException e) {
+											throw new RuntimeException("Could not find SHA-1 digest");
+										}
+										md.update(chain[0].getEncoded());
+										byte[] digest = md.digest();
+										BigInteger bi = new BigInteger(1, digest);
+									    String fingerprint = String.format("%0" + (digest.length << 1) + "X", bi);
+
+									    if (!fingerprint.equals(whitelisted_cert)) {
+									    	throw new CertificateException("Certificate fingerprint does not match the configured one!");
+									    }
+
+									    /* Otherwise, if it matches, we said override, so trust everything */
+									}
+
+									public X509Certificate[] getAcceptedIssuers() {
+										return new X509Certificate[0];
+									}
+								} }, null);
+					} catch (KeyManagementException e) {
+						throw new RuntimeException(String.format("Unable to set up key management: %s", e.toString()));
+					}
+					sslconn.setSSLSocketFactory(context.getSocketFactory());
+				}
 			}
 			InputStreamReader isr = new InputStreamReader(c.getInputStream());
 			BufferedReader r = new BufferedReader(isr);
@@ -314,6 +374,8 @@ public abstract class ListServer {
 		xml.attribute(null, "password", password);
 		if (override_certname != null && !override_certname.equals(""))
 			xml.attribute(null, "overridecertname", override_certname);
+		if (whitelisted_cert != null && !whitelisted_cert.equals(""))
+			xml.attribute(null, "whitelistedcert", whitelisted_cert);
 		xml.endTag(null, "list");
 	}
 }
